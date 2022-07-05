@@ -22,6 +22,7 @@ public class Aeroporto {
 	private final static long TEMPO_ESPERA = 2000;
 	
 	private Pista pista = new Pista();
+	private Pista pista2 = new Pista();
 	
 	public Aeroporto() {
 		
@@ -62,14 +63,19 @@ public class Aeroporto {
 	private void aviaoChegando(Aeronave aviao) {
 		System.out.println("Aviao solicitando aterrisagem: "+aviao.getNome()+" thread: "+Thread.currentThread().getName());
 
-		if(pista.getAviao()==null) {
-			pista.setAviao(aviao);
+		if(pista.getAviao()==null || pista2.getAviao() == null) {
+			
+			String pitaId = adionaAviaoPistaVazia(aviao);
+			
 			System.out.println("Pista vazia ---- Aviao "+aviao.getNome()+" aterrisando..");
 			
 			Utils.sleep(TEMPO_ATERRISAGEM);
 			
 			System.out.println("Aviao "+aviao.getNome()+" aterrisou ");
-			pista.setAviao(null);
+			
+			
+			removeAviaoPista(pitaId);
+
 			
 			if(!avioesPrecisandoAterrisar.isEmpty()) {
 				avioesPrecisandoAterrisar.remove(aviao);
@@ -88,13 +94,17 @@ public class Aeroporto {
 	private void aviaoSaindo(Aeronave aviao) {
 		System.out.println("Aviao solicitando decolagem: "+aviao.getNome()+" thread: "+Thread.currentThread().getName());
 
-		if(pista.getAviao()==null && avioesPrecisandoAterrisar.isEmpty()) {
+		if((pista.getAviao()==null || pista2.getAviao() == null) && avioesPrecisandoAterrisar.isEmpty()) {
+			
+			//TODO chama metodo para ocupar a pista
 			pista.setAviao(aviao);
 			System.out.println("Pista vazia ---- Aviao "+aviao.getNome()+" decolando..");
 			
 			Utils.sleep(TEMPO_DECOLAGEM);
 			
 			System.out.println("Aviao "+aviao.getNome()+" decolou ");
+			
+			//TODO chama metodo para desocupar a pista ocupada
 			pista.setAviao(null);
 			
 			if(!avioesPrecisandoDecolar.isEmpty()) {
@@ -104,7 +114,7 @@ public class Aeroporto {
 			
 			return;
 			
-		}else if(pista.getAviao()!=null){
+		}else if(pista.getAviao()!=null){//TODO
 			System.out.println("Pista cheia ---- Aviao "+aviao.getNome()+" esperando para decolar..");
 			
 			addAviaoDecolar(aviao);
@@ -124,7 +134,7 @@ public class Aeroporto {
 	private void aviaoTaxiando(Aeronave aviao) {
 		System.out.println("Aviao Tentando taxiar: "+aviao.getNome()+" thread: "+Thread.currentThread().getName());
 
-		if(pista.getAviao()==null && avioesPrecisandoAterrisar.isEmpty() && avioesPrecisandoDecolar.isEmpty()) {
+		if(pista.getAviao()==null && avioesPrecisandoAterrisar.isEmpty() && avioesPrecisandoDecolar.isEmpty()) {//TODO
 			pista.setAviao(aviao);
 			System.out.println("Pista vazia ---- Aviao "+aviao.getNome()+" taxiando..");
 			
@@ -140,7 +150,7 @@ public class Aeroporto {
 			
 			return;
 			
-		}else if(pista.getAviao()!=null){
+		}else if(pista.getAviao()!=null){//TODO verificar se as duas pista ta cheia
 			System.out.println("Pista cheia ---- Aviao "+aviao.getNome()+" esperando para taxiar..");
 			
 			addAviaoTaxiar(aviao);
@@ -174,7 +184,7 @@ public class Aeroporto {
 	 */
 	private void escalonarFilaTaxiamento(){
 		
-		if(pista.getAviao()==null) {
+		if(pista.getAviao()==null) {//TODO
 			if(!avioesPrecisandoTaxiar.isEmpty()) {
 				Aeronave aviaoParaTaxiar = avioesPrecisandoTaxiar.stream().findFirst().get();
 				System.out.println("escalonador: "+aviaoParaTaxiar.getNome());
@@ -196,7 +206,7 @@ public class Aeroporto {
 	 */
 	private void escalonarFilaDecolagem(){
 		
-		if(pista.getAviao()==null) {
+		if(pista.getAviao()==null) {//TODO
 			
 			if(!avioesPrecisandoDecolar.isEmpty()) {
 				Aeronave aviaoParaDecolar = avioesPrecisandoDecolar.stream().findFirst().get();
@@ -220,7 +230,7 @@ public class Aeroporto {
 	 */
 	private void escalonarFilaAterrizagem(){
 		
-		if(pista.getAviao()==null) {
+		if(pista.getAviao()==null) {//TODO
 			
 			if(!avioesPrecisandoAterrisar.isEmpty()) {
 				Aeronave aviaoInicial = avioesPrecisandoAterrisar.stream().findFirst().get();
@@ -256,14 +266,16 @@ public class Aeroporto {
 		
 		
 		sortListaAvioes(aeronaves);
-		
+
 		aeronaves.forEach(aviao->{
 			
 			ThreadAeronave thread = new ThreadAeronave(aviao,this);
 			int index = aeronaves.indexOf(aviao)+1;
 			
-			//Devido ao maximo de prioridade das thread
-			thread.setPriority(index <= 10 ? index : 10);
+			//Devido ao maximo de prioridade das thread 
+			//? - True
+			//: - False
+			thread.setPriority((index <= 10) ? index : 10);
 			
 			this.threadAvioes.add(thread);
 		});
@@ -332,6 +344,24 @@ public class Aeroporto {
 	}
 	public void setPista(Pista pista) {
 		this.pista = pista;
+	}
+	
+	public String adionaAviaoPistaVazia(Aeronave aviao) {
+		if(pista.getAviao()==null) {
+			pista.setAviao(aviao);
+			return "PISTA1";
+		}else {
+			pista2.setAviao(aviao);
+			return "PISTA2";
+		}
+	}
+	
+	public void removeAviaoPista(String pistaId) {
+		if(pistaId.equals("PISTA1")) {
+			pista.setAviao(null);
+		}else {
+			pista2.setAviao(null);
+		}
 	}
 	
 }

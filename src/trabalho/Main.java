@@ -72,15 +72,15 @@ public class Main {
 		aviao9.setEstado(AeronaveEstado.PRECISA_ATERRISAR);
 		aviao9.setNome("AZUL - 3");
 		
-		//avioes.add(aviao1);
+		avioes.add(aviao1);
 		avioes.add(aviao2);
-		avioes.add(aviao3);
+		//avioes.add(aviao3);
 		//avioes.add(aviao4);
 		avioes.add(aviao5);
-		avioes.add(aviao6);	
-		avioes.add(aviao7);	
-		//avioes.add(aviao8);	
-		avioes.add(aviao9);	
+		//avioes.add(aviao6);	
+		//avioes.add(aviao7);	
+		avioes.add(aviao8);	
+		//avioes.add(aviao9);	
 		
 		Aeroporto aeroporto = new Aeroporto();
 		aeroporto.setAeronaves(avioes);
