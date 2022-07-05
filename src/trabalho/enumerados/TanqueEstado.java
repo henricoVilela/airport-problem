@@ -24,6 +24,7 @@ public enum TanqueEstado {
     }
     
     public static final TanqueEstado getByValue(Integer value){
+    	
         return Arrays.stream(TanqueEstado.values()).filter(enumRole -> enumRole.valor.equals(value)).findFirst().orElse(null);
     }
 }
